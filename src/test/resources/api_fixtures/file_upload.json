@@ -1,0 +1,10 @@
+{
+  "id": "file_1BrE64KCFFPkgtRhvXK81rmT",
+  "object": "file_upload",
+  "created": 1517614652,
+  "filename": "test.png",
+  "purpose": "dispute_evidence",
+  "size": 95,
+  "type": "png",
+  "url": "https://example.com/dummy-url"
+}

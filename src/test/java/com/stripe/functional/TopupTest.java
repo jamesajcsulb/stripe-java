@@ -5,74 +5,80 @@ import static org.junit.Assert.assertNotNull;
 
 import com.stripe.BaseStripeMockTest;
 import com.stripe.exception.StripeException;
-import com.stripe.model.Transfer;
-import com.stripe.model.TransferCollection;
+import com.stripe.model.Topup;
+import com.stripe.model.TopupCollection;
 import com.stripe.net.APIResource;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
-public class TransferTest extends BaseStripeMockTest {
-  public static final String RESOURCE_ID = "tr_123";
+// stripe-mock returns an invalid `source` attribute in the topup fixture that causes a crash
+// during deserialization. Disable the tests while waiting for a fix.
+@Ignore
+public class TopupTest extends BaseStripeMockTest {
+  public static final String RESOURCE_ID = "tu_123";
 
   @Test
   public void testCreate() throws StripeException {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("amount", 100);
     params.put("currency", "usd");
-    params.put("destination", "acct_123");
+    params.put("source", "src_123");
+    params.put("description", "creating a topup");
+    params.put("statement_descriptor", "topup");
 
-    Transfer transfer = Transfer.create(params);
+    Topup topup = Topup.create(params);
 
-    assertNotNull(transfer);
+    assertNotNull(topup);
     verifyRequest(
         APIResource.RequestMethod.POST,
-        "/v1/transfers",
+        "/v1/topups",
         params
     );
   }
 
   @Test
   public void testRetrieve() throws StripeException {
-    Transfer transfer = Transfer.retrieve(RESOURCE_ID);
+    Topup topup = Topup.retrieve(RESOURCE_ID);
 
-    assertNotNull(transfer);
+    assertNotNull(topup);
     verifyRequest(
         APIResource.RequestMethod.GET,
-        String.format("/v1/transfers/%s", RESOURCE_ID)
+        String.format("/v1/topups/%s", RESOURCE_ID)
     );
   }
 
   @Test
   public void testUpdate() throws StripeException {
-    Transfer transfer = Transfer.retrieve(RESOURCE_ID);
+    Topup topup = Topup.retrieve(RESOURCE_ID);
 
     Map<String, Object> metadata = new HashMap<String, Object>();
     metadata.put("key", "value");
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("metadata", metadata);
 
-    Transfer updatedTransfer = transfer.update(params);
+    Topup updatedTopup = topup.update(params);
 
-    assertNotNull(updatedTransfer);
+    assertNotNull(updatedTopup);
     verifyRequest(
         APIResource.RequestMethod.POST,
-        String.format("/v1/transfers/%s", transfer.getId()),
+        String.format("/v1/transfers/%s", topup.getId()),
         params
     );
   }
 
   @Test
   public void testList() throws StripeException {
-    TransferCollection transfers = Transfer.list(null);
+    TopupCollection topups = Topup.list(null);
 
-    assertNotNull(transfers);
-    assertEquals(1, transfers.getData().size());
+    assertNotNull(topups);
+    assertEquals(1, topups.getData().size());
     verifyRequest(
         APIResource.RequestMethod.GET,
-        "/v1/transfers"
+        "/v1/topups"
     );
   }
 }

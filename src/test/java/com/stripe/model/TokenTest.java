@@ -7,12 +7,12 @@ import com.stripe.net.APIResource;
 
 import org.junit.Test;
 
-public class SourceTest extends BaseStripeMockTest {
+public class TokenTest extends BaseStripeMockTest {
   @Test
   public void testDeserialize() throws Exception {
-    String data = getFixture("/v1/sources/src_123");
-    Source source = APIResource.GSON.fromJson(data, Source.class);
-    assertNotNull(source);
-    assertNotNull(source.getId());
+    String data = getFixture("/v1/tokens/tok_123");
+    Token token = APIResource.GSON.fromJson(data, Token.class);
+    assertNotNull(token);
+    assertNotNull(token.getId());
   }
 }
