@@ -3,16 +3,17 @@ package com.stripe.model;
 import static org.junit.Assert.assertNotNull;
 
 import com.stripe.BaseStripeMockTest;
-import com.stripe.model.Balance;
+import com.stripe.model.Coupon;
 import com.stripe.net.APIResource;
 
 import org.junit.Test;
 
-public class BalanceTest extends BaseStripeMockTest {
+public class CouponTest extends BaseStripeMockTest {
   @Test
   public void testDeserialize() throws Exception {
-    String data = getFixture("/v1/balance");
-    Balance resource = APIResource.GSON.fromJson(data, Balance.class);
+    String data = getFixture("/v1/coupons/COUPON_ID");
+    Coupon resource = APIResource.GSON.fromJson(data, Coupon.class);
     assertNotNull(resource);
+    assertNotNull(resource.getId());
   }
 }

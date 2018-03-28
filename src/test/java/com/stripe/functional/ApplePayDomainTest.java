@@ -1,55 +1,70 @@
 package com.stripe.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import com.stripe.BaseStripeFunctionalTest;
-import com.stripe.exception.StripeException;
-import com.stripe.model.ApplePayDomain;
-import com.stripe.model.DeletedApplePayDomain;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Random;
+
+import com.stripe.BaseStripeMockTest;
+import com.stripe.exception.StripeException;
+import com.stripe.model.ApplePayDomain;
+import com.stripe.model.ApplePayDomainCollection;
+import com.stripe.net.APIResource;
 
 import org.junit.Test;
 
-public class ApplePayDomainTest extends BaseStripeFunctionalTest {
-  static Map<String, Object> getApplePayDomainParams() throws StripeException {
+public class ApplePayDomainTest extends BaseStripeMockTest {
+  public static final String RESOURCE_ID = "apftw_123";
+
+  @Test
+  public void testCreate() throws StripeException {
     Map<String, Object> params = new HashMap<String, Object>();
-    Random rand = new Random();
-    Integer subdomain = rand.nextInt(Integer.MAX_VALUE);
-    params.put("domain_name", "subdomain" + subdomain.toString() + ".example.com");
-    return params;
+    params.put("domain_name", "stripe.com");
+
+    ApplePayDomain resource = ApplePayDomain.create(params);
+
+    assertNotNull(resource);
+    verifyRequest(
+        APIResource.RequestMethod.POST,
+        String.format("/v1/apple_pay/domains"),
+        params
+    );
   }
 
   @Test
-  public void testApplePayDomainCreate() throws StripeException {
-    ApplePayDomain domain = ApplePayDomain.create(getApplePayDomainParams());
-    assertTrue(domain.getDomainName().contains("example.com"));
+  public void testRetrieve() throws StripeException {
+    ApplePayDomain resource = ApplePayDomain.retrieve(RESOURCE_ID);
+
+    assertNotNull(resource);
+    verifyRequest(
+        APIResource.RequestMethod.GET,
+        String.format("/v1/apple_pay/domains/%s", RESOURCE_ID)
+    );
   }
 
   @Test
-  public void testApplePayDomainRetrieve() throws StripeException {
-    ApplePayDomain createdDomain = ApplePayDomain.create(getApplePayDomainParams());
-    ApplePayDomain retrievedDomain = ApplePayDomain.retrieve(createdDomain.getId());
-    assertEquals(createdDomain.getId(), retrievedDomain.getId());
-  }
-
-  @Test
-  public void testApplePayDomainList() throws StripeException {
+  public void testList() throws StripeException {
     Map<String, Object> listParams = new HashMap<String, Object>();
-    listParams.put("count", 1);
-    List<ApplePayDomain> domains = ApplePayDomain.list(listParams).getData();
-    assertEquals(domains.size(), 1);
+    listParams.put("limit", 1);
+
+    ApplePayDomainCollection resources = ApplePayDomain.list(listParams);
+
+    assertNotNull(resources);
+    verifyRequest(
+        APIResource.RequestMethod.GET,
+        String.format("/v1/apple_pay/domains")
+    );
   }
 
   @Test
-  public void testApplePayDomainDelete() throws StripeException {
-    ApplePayDomain createdDomain = ApplePayDomain.create(getApplePayDomainParams());
-    DeletedApplePayDomain deletedDomain = createdDomain.delete();
-    assertTrue(deletedDomain.getDeleted());
-    assertEquals(deletedDomain.getId(), createdDomain.getId());
+  public void testDelete() throws StripeException {
+    ApplePayDomain resource = ApplePayDomain.retrieve(RESOURCE_ID);
+
+    resource.delete();
+
+    verifyRequest(
+        APIResource.RequestMethod.DELETE,
+        String.format("/v1/apple_pay/domains/%s", resource.getId())
+    );
   }
 }

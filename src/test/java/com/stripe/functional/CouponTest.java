@@ -1,128 +1,88 @@
 package com.stripe.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
-import com.stripe.BaseStripeFunctionalTest;
-import com.stripe.Stripe;
+import com.stripe.BaseStripeMockTest;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Coupon;
-import com.stripe.model.Customer;
-import com.stripe.model.DeletedCoupon;
+import com.stripe.model.CouponCollection;
+import com.stripe.net.APIResource;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
 
-public class CouponTest extends BaseStripeFunctionalTest {
-  static Map<String, Object> getUniqueCouponParams() {
-    Map<String, Object> uniqueParams = new HashMap<String, Object>();
-    uniqueParams.putAll(defaultCouponParams);
-    uniqueParams.put("id", getUniqueCouponId());
-    return uniqueParams;
+public class CouponTest extends BaseStripeMockTest {
+  public static final String RESOURCE_ID = "COUPON_ID";
+
+  @Test
+  public void testCreate() throws StripeException {
+    Map<String, Object> params = new HashMap<String, Object>();
+    params.put("percent_off", 25);
+    params.put("duration", "forever");
+
+    Coupon resource = Coupon.create(params);
+
+    assertNotNull(resource);
+    verifyRequest(
+        APIResource.RequestMethod.POST,
+        String.format("/v1/coupons"),
+        params
+    );
   }
 
   @Test
-  public void testCouponCreate() throws StripeException {
-    Coupon coupon = Coupon.create(getUniqueCouponParams());
-    assertEquals(coupon.getDuration(), "once");
+  public void testRetrieve() throws StripeException {
+    Coupon.retrieve(RESOURCE_ID);
+
+    verifyRequest(
+        APIResource.RequestMethod.GET,
+        String.format("/v1/coupons/%s", RESOURCE_ID)
+    );
   }
 
   @Test
-  public void testCouponUpdate() throws StripeException {
-    Coupon createdCoupon = Coupon.create(getUniqueCouponParams());
-    Map<String, Object> updateParams = new HashMap<String, Object>();
-    updateParams.put("metadata[message]", "This month is on us!");
-    Coupon updatedCoupon = createdCoupon.update(updateParams);
-    assertEquals(updatedCoupon.getMetadata().get("message"), "This month is on us!");
+  public void testUpdate() throws StripeException {
+    Coupon resource = Coupon.retrieve(RESOURCE_ID);
+
+    Map<String, String> metadataParams = new HashMap<String, String>();
+    metadataParams.put("key", "value");
+    Map<String, Object> params = new HashMap<String, Object>();
+    params.put("metadata", metadataParams);
+
+    resource.update(params);
+
+    verifyRequest(
+        APIResource.RequestMethod.POST,
+        String.format("/v1/coupons/%s", resource.getId()),
+        params
+    );
   }
 
   @Test
-  public void testCouponRetrieve() throws StripeException {
-    Coupon createdCoupon = Coupon.create(getUniqueCouponParams());
-    Coupon retrievedCoupon = Coupon.retrieve(createdCoupon.getId());
-    assertEquals(createdCoupon.getId(), retrievedCoupon.getId());
-  }
-
-  @Test
-  public void testCouponList() throws StripeException {
+  public void testList() throws StripeException {
     Map<String, Object> listParams = new HashMap<String, Object>();
-    listParams.put("count", 1);
-    List<Coupon> coupons = Coupon.all(listParams).getData();
-    assertEquals(coupons.size(), 1);
+    listParams.put("limit", 1);
+
+    CouponCollection resources = Coupon.list(listParams);
+
+    assertNotNull(resources);
+    verifyRequest(
+        APIResource.RequestMethod.GET,
+        String.format("/v1/coupons")
+    );
   }
 
   @Test
-  public void testCouponDelete() throws StripeException {
-    Coupon createdCoupon = Coupon.create(getUniqueCouponParams());
-    DeletedCoupon deletedCoupon = createdCoupon.delete();
-    assertTrue(deletedCoupon.getDeleted());
-    assertEquals(deletedCoupon.getId(), createdCoupon.getId());
-  }
+  public void testDelete() throws StripeException {
+    Coupon resource = Coupon.retrieve(RESOURCE_ID);
 
-  @Test
-  public void testCustomerCreateWithCoupon() throws StripeException {
-    Coupon coupon = Coupon.create(getUniqueCouponParams());
-    Map<String, Object> customerWithCouponParams = new HashMap<String, Object>();
-    customerWithCouponParams.put("coupon", coupon.getId());
-    Customer customer = Customer.create(customerWithCouponParams);
-    assertEquals(customer.getDiscount().getCoupon().getId(), coupon.getId());
+    resource.delete();
 
-    customer.deleteDiscount();
-    assertNull(Customer.retrieve(customer.getId()).getDiscount());
-  }
-
-  @Test
-  public void testCouponCreatePerCallAPIKey() throws StripeException {
-    Coupon coupon = Coupon.create(getUniqueCouponParams(), Stripe.apiKey);
-    assertEquals(coupon.getDuration(), "once");
-  }
-
-  @Test
-  public void testCouponRetrievePerCallAPIKey() throws StripeException {
-    Coupon createdCoupon = Coupon.create(getUniqueCouponParams(),
-        Stripe.apiKey);
-    Coupon retrievedCoupon = Coupon.retrieve(createdCoupon.getId(),
-        Stripe.apiKey);
-    assertEquals(createdCoupon.getId(), retrievedCoupon.getId());
-  }
-
-  @Test
-  public void testCouponListPerCallAPIKey() throws StripeException {
-    Map<String, Object> listParams = new HashMap<String, Object>();
-    listParams.put("count", 1);
-    List<Coupon> coupons = Coupon.all(listParams, Stripe.apiKey).getData();
-    assertEquals(coupons.size(), 1);
-  }
-
-  @Test
-  public void testCouponDeletePerCallAPIKey() throws StripeException {
-    Coupon createdCoupon = Coupon.create(getUniqueCouponParams(),
-        Stripe.apiKey);
-    DeletedCoupon deletedCoupon = createdCoupon.delete(Stripe.apiKey);
-    assertTrue(deletedCoupon.getDeleted());
-    assertEquals(deletedCoupon.getId(), createdCoupon.getId());
-  }
-
-  @Test
-  public void testCustomerCreateWithCouponPerCallAPIKey()
-      throws StripeException {
-    Coupon coupon = Coupon.create(getUniqueCouponParams(), Stripe.apiKey);
-    Map<String, Object> customerWithCouponParams = new HashMap<String, Object>();
-    customerWithCouponParams.put("coupon", coupon.getId());
-    Customer customer = Customer.create(customerWithCouponParams,
-        Stripe.apiKey);
-    assertEquals(customer.getDiscount().getCoupon().getId(), coupon.getId());
-
-    customer.deleteDiscount();
-    assertNull(Customer.retrieve(customer.getId()).getDiscount());
-  }
-
-  @Test
-  public void testCouponMetadata() throws StripeException {
-    testMetadata(Coupon.create(getUniqueCouponParams()));
+    verifyRequest(
+        APIResource.RequestMethod.DELETE,
+        String.format("/v1/coupons/%s", resource.getId())
+    );
   }
 }
