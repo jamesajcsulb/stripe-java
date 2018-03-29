@@ -34,8 +34,9 @@ public class CouponTest extends BaseStripeMockTest {
 
   @Test
   public void testRetrieve() throws StripeException {
-    Coupon.retrieve(RESOURCE_ID);
+    Coupon resource = Coupon.retrieve(RESOURCE_ID);
 
+    assertNotNull(resource);
     verifyRequest(
         APIResource.RequestMethod.GET,
         String.format("/v1/coupons/%s", RESOURCE_ID)

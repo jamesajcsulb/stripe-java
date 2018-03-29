@@ -2,14 +2,14 @@ package com.stripe.functional;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.stripe.BaseStripeMockTest;
 import com.stripe.exception.StripeException;
 import com.stripe.model.ApplePayDomain;
 import com.stripe.model.ApplePayDomainCollection;
 import com.stripe.net.APIResource;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Test;
 

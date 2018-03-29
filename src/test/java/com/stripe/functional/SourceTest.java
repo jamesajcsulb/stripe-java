@@ -71,7 +71,7 @@ public class SourceTest extends BaseStripeMockTest {
 
   @Test
   public void testVerify() throws StripeException {
-    Source source = Source.retrieve(RESOURCE_ID);
+    final Source source = Source.retrieve(RESOURCE_ID);
 
     List<Integer> values = new LinkedList<Integer>();
     values.add(32);

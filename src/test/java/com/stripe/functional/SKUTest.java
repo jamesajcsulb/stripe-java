@@ -58,7 +58,7 @@ public class SKUTest extends BaseStripeMockTest {
 
   @Test
   public void testUpdate() throws StripeException {
-    SKU sku = SKU.retrieve(RESOURCE_ID);
+    final SKU sku = SKU.retrieve(RESOURCE_ID);
 
     Map<String, Object> inventory = new HashMap<String, Object>();
     inventory.put("type", "bucket");

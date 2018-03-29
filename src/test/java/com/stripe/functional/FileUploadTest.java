@@ -38,11 +38,11 @@ public class FileUploadTest extends BaseStripeMockTest {
 
     assertNotNull(fileUpload);
     verifyRequest(
-      APIResource.RequestMethod.POST,
-      String.format("%s/v1/files", Stripe.UPLOAD_API_BASE),
-      params,
-      APIResource.RequestType.MULTIPART,
-      null
+        APIResource.RequestMethod.POST,
+        String.format("%s/v1/files", Stripe.UPLOAD_API_BASE),
+        params,
+        APIResource.RequestType.MULTIPART,
+        null
     );
   }
 

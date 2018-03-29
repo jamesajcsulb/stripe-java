@@ -107,9 +107,9 @@ public class BaseStripeMockTest {
   }
 
   /**
-   * {@code params}, {@code requestType} and {@code options} defaults to {@code null}
+   * {@code params}, {@code requestType} and {@code options} defaults to {@code null}.
    *
-   * @see BaseStripeMockTest#verifyRequest(APIResource.RequestMethod, String, Map<String, Object>,
+   * @see BaseStripeMockTest#verifyRequest(APIResource.RequestMethod, String, Map,
    *     APIResource.RequestType, RequestOptions)
    */
   public static <T> void verifyRequest(
@@ -119,9 +119,9 @@ public class BaseStripeMockTest {
   }
 
   /**
-   * {@code requestType} and {@code options} defaults to {@code null}
+   * {@code requestType} and {@code options} defaults to {@code null}.
    *
-   * @see BaseStripeMockTest#verifyRequest(APIResource.RequestMethod, String, Map<String, Object>,
+   * @see BaseStripeMockTest#verifyRequest(APIResource.RequestMethod, String, Map,
    *     APIResource.RequestType, RequestOptions)
    */
   public static <T> void verifyRequest(
@@ -182,10 +182,10 @@ public class BaseStripeMockTest {
   }
 
   /**
-   * {@code params}, {@code requestType} and {@code options} defaults to {@code null}
+   * {@code params}, {@code requestType} and {@code options} defaults to {@code null}.
    *
-   * @see BaseStripeMockTest#stubRequest(APIResource.RequestMethod, String, Map<String, Object>,
-   *     APIResource.RequestType, RequestOptions, Class<T>, String)
+   * @see BaseStripeMockTest#stubRequest(APIResource.RequestMethod, String, Map,
+   *     APIResource.RequestType, RequestOptions, Class, String)
    */
   public static <T> void stubRequest(
       APIResource.RequestMethod method,
@@ -196,10 +196,10 @@ public class BaseStripeMockTest {
   }
 
   /**
-   * {@code requestType} and {@code options} defaults to {@code null}
+   * {@code requestType} and {@code options} defaults to {@code null}.
    *
-   * @see BaseStripeMockTest#stubRequest(APIResource.RequestMethod, String, Map<String, Object>,
-   *     APIResource.RequestType, RequestOptions, Class<T>, String)
+   * @see BaseStripeMockTest#stubRequest(APIResource.RequestMethod, String, Map,
+   *     APIResource.RequestType, RequestOptions, Class, String)
    */
   public static <T> void stubRequest(
       APIResource.RequestMethod method,
@@ -251,7 +251,7 @@ public class BaseStripeMockTest {
             : Mockito.any(APIResource.RequestType.class),
           (options != null) ? Mockito.argThat(new RequestOptionsMatcher(options))
             : Mockito.<RequestOptions>any()
-        );
+      );
   }
 
   /**
@@ -268,7 +268,7 @@ public class BaseStripeMockTest {
           Mockito.<Class<T>>any(),
           Mockito.any(APIResource.RequestType.class),
           Mockito.<RequestOptions>any()
-        );
+      );
   }
 
   /**
@@ -415,7 +415,8 @@ public class BaseStripeMockTest {
     }
 
     for (int i = 0; i < loopMax; i++) {
-      String x = "", y = "";
+      String x = "";
+      String y = "";
       if (as.length > i) {
         x = as[i];
       }
@@ -446,6 +447,9 @@ public class BaseStripeMockTest {
       this.other = other;
     }
 
+    /**
+     * Informs if this matcher accepts the given argument.
+     */
     public boolean matches(Map<String,Object> paramMap) {
       if (this.other == null) {
         // If the matcher was constructed with null, accept any params
@@ -467,6 +471,9 @@ public class BaseStripeMockTest {
       this.other = other;
     }
 
+    /**
+     * Informs if this matcher accepts the given argument.
+     */
     public boolean matches(RequestOptions requestOptions) {
       if (this.other == null) {
         // If the matcher was constructed with null, accept any options
