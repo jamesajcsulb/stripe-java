@@ -19,6 +19,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.After;
@@ -288,6 +289,26 @@ public class BaseStripeMockTest {
     Type type = new TypeToken<Map<String, Object>>(){}.getType();
     Map<String, Object> map = gson.fromJson(data, type);
     Object value = map.get(field);
+    return gson.toJson(value);
+  }
+
+  /**
+   * Convenience method that extracts a subset of JSON data and returns it.
+   *
+   * <p>For example, if I know that my charge object has a customer under it,
+   * I can pass my charge JSON data and specify {@code field} as {@code
+   * customer}. This returns everything that had been under the {@code
+   * customer} key (encoded as JSON).
+   *
+   * @param data JSON encoded data.
+   * @param index Index of the data to extract.
+   * @return Extracted JSON encoded data.
+   */
+  protected static String getDataAt(String data, Integer index) {
+    Gson gson = new Gson();
+    Type type = new TypeToken<List<Object>>(){}.getType();
+    List<Object> list = gson.fromJson(data, type);
+    Object value = list.get(index);
     return gson.toJson(value);
   }
 

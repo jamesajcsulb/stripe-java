@@ -1,5 +1,6 @@
 package com.stripe.model;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -15,6 +16,7 @@ public class SKUTest extends BaseStripeMockTest {
     SKU sku = APIResource.GSON.fromJson(data, SKU.class);
     assertNotNull(sku);
     assertNotNull(sku.getId());
+    assertEquals("sku", sku.getObject());
     assertNull(sku.getProductObject());
   }
 
