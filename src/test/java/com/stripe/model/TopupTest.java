@@ -6,12 +6,8 @@ import static org.junit.Assert.assertNull;
 import com.stripe.BaseStripeMockTest;
 import com.stripe.net.APIResource;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
-// stripe-mock returns an invalid `source` attribute in the topup fixture that causes a crash
-// during deserialization. Disable the tests while waiting for a fix.
-@Ignore
 public class TopupTest extends BaseStripeMockTest {
   @Test
   public void testDeserialize() throws Exception {

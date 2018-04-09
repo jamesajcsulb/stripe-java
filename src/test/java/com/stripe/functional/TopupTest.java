@@ -12,12 +12,8 @@ import com.stripe.net.APIResource;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
-// stripe-mock returns an invalid `source` attribute in the topup fixture that causes a crash
-// during deserialization. Disable the tests while waiting for a fix.
-@Ignore
 public class TopupTest extends BaseStripeMockTest {
   public static final String RESOURCE_ID = "tu_123";
 
@@ -65,7 +61,7 @@ public class TopupTest extends BaseStripeMockTest {
     assertNotNull(updatedTopup);
     verifyRequest(
         APIResource.RequestMethod.POST,
-        String.format("/v1/transfers/%s", topup.getId()),
+        String.format("/v1/topups/%s", topup.getId()),
         params
     );
   }

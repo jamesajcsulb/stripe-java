@@ -15,7 +15,7 @@ jdk:
 
 env:
   global:
-    - STRIPE_MOCK_VERSION=0.9.0
+    - STRIPE_MOCK_VERSION=0.11.2
 
 before_install:
   # Work around missing crypto in openjdk7
