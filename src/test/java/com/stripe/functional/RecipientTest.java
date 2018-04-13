@@ -1,127 +1,118 @@
 package com.stripe.functional;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
-import com.stripe.BaseStripeFunctionalTest;
+import com.stripe.BaseStripeMockTest;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Card;
-import com.stripe.model.DeletedCard;
-import com.stripe.model.DeletedRecipient;
 import com.stripe.model.Recipient;
+import com.stripe.model.RecipientCollection;
+import com.stripe.net.APIResource;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
 
-public class RecipientTest extends BaseStripeFunctionalTest {
-  // Recipient Tests:
+
+public class RecipientTest extends BaseStripeMockTest {
+  public static final String RESOURCE_ID = "rp_123";
+
   @Test
-  public void testRecipientCreate() throws StripeException {
-    Recipient recipient = Recipient.create(defaultRecipientParams);
-    assertEquals(recipient.getActiveAccount().getLast4(), "6789");
-    assertTrue(recipient instanceof Recipient);
+  public void testCreate() throws StripeException {
+    Map<String, Object> params = new HashMap<String, Object>();
+    params.put("name", "John Doe");
+    params.put("type", "Individual");
+
+    Recipient resource = Recipient.create(params);
+
+    assertNotNull(resource);
+    verifyRequest(
+        APIResource.RequestMethod.POST,
+        String.format("/v1/recipients"),
+        params
+    );
   }
 
   @Test
-  public void testRecipientRetrieve() throws StripeException {
-    Recipient createdRecipient = Recipient.create(defaultRecipientParams);
-    Recipient retrievedRecipient = Recipient.retrieve(createdRecipient.getId());
-    assertEquals(createdRecipient.getCreated(), retrievedRecipient.getCreated());
-    assertEquals(createdRecipient.getId(), retrievedRecipient.getId());
-    assertEquals(createdRecipient.getActiveAccount().getValidated(),
-        retrievedRecipient.getActiveAccount().getValidated());
+  public void testRetrieve() throws StripeException {
+    Recipient resource = Recipient.retrieve(RESOURCE_ID);
+
+    verifyRequest(
+        APIResource.RequestMethod.GET,
+        String.format("/v1/recipients/%s", RESOURCE_ID)
+    );
   }
 
   @Test
-  public void testRecipientList() throws StripeException {
+  public void testUpdate() throws StripeException {
+    Recipient resource = Recipient.retrieve(RESOURCE_ID);
+
+    Map<String, String> metadataParams = new HashMap<String, String>();
+    metadataParams.put("key", "value");
+    Map<String, Object> params = new HashMap<String, Object>();
+    params.put("metadata", metadataParams);
+
+    resource.update(params);
+
+    verifyRequest(
+        APIResource.RequestMethod.POST,
+        String.format("/v1/recipients/%s", resource.getId()),
+        params
+    );
+  }
+
+  @Test
+  public void testList() throws StripeException {
     Map<String, Object> listParams = new HashMap<String, Object>();
-    listParams.put("count", 1);
-    List<Recipient> recipients = Recipient.all(listParams).getData();
-    assertEquals(recipients.size(), 1);
+    listParams.put("limit", 1);
+
+    RecipientCollection resources = Recipient.list(listParams);
+    
+    assertNotNull(resources);
+    verifyRequest(
+        APIResource.RequestMethod.GET,
+        String.format("/v1/recipients")
+    );
   }
 
   @Test
-  public void testRecipientUpdate() throws StripeException {
-    Recipient createdRecipient = Recipient.create(defaultRecipientParams);
-    Map<String, Object> updateParams = new HashMap<String, Object>();
-    updateParams.put("description", "Updated Description");
-    Recipient updatedRecipient = createdRecipient.update(updateParams);
-    assertEquals(updatedRecipient.getDescription(), "Updated Description");
+  public void testDelete() throws StripeException {
+    Recipient resource = Recipient.retrieve(RESOURCE_ID);
+
+    resource.delete();
+
+    verifyRequest(
+        APIResource.RequestMethod.DELETE,
+        String.format("/v1/recipients/%s", resource.getId())
+    );
   }
 
   @Test
-  public void testRecipientCardAddition() throws StripeException {
-    Recipient createdRecipient = Recipient.create(defaultRecipientParams);
-    final String originalDefaultCard = createdRecipient.getDefaultCard();
+  public void testCreateCard() throws IOException, StripeException {
+    Recipient resource = Recipient.retrieve(RESOURCE_ID);
 
-    Map<String, Object> creationParams = new HashMap<String, Object>();
-    creationParams.put("card", "tok_visa_debit");
-    final Card addedCard = createdRecipient.createCard(creationParams);
+    Map<String, Object> params = new HashMap<String, Object>();
+    params.put("card", "tok_123");    
 
-    createdRecipient.createCard("tok_visa_debit");
+    // stripe-mock does not support POST /v1/recipients, so we stub the request
+    stubRequest(
+        APIResource.RequestMethod.POST,
+        String.format("/v1/recipients/%s/cards", resource.getId()),
+        params,
+        Card.class,
+        getResourceAsString("/api_fixtures/card.json")
+    );
 
-    Recipient updatedRecipient = Recipient.retrieve(createdRecipient.getId());
-    assertEquals((Integer) 3, (Integer) updatedRecipient.getCards().getData().size());
-    assertEquals(updatedRecipient.getDefaultCard(), originalDefaultCard);
+    Card card = resource.createCard(params);
 
-    Map<String, Object> updateParams = new HashMap<String, Object>();
-    updateParams.put("default_card", addedCard.getId());
-    Recipient recipientAfterDefaultCardUpdate = updatedRecipient.update(updateParams);
-    assertEquals((Integer) recipientAfterDefaultCardUpdate.getCards().getData().size(),
-        (Integer) 3);
-    assertEquals(recipientAfterDefaultCardUpdate.getDefaultCard(), addedCard.getId());
-
-    assertEquals(recipientAfterDefaultCardUpdate.getCards().retrieve(originalDefaultCard).getId(),
-        originalDefaultCard);
-    assertEquals(recipientAfterDefaultCardUpdate.getCards().retrieve(addedCard.getId()).getId(),
-        addedCard.getId());
-  }
-
-  @Test
-  public void testRecipientCardUpdate() throws StripeException {
-    Recipient recipient = Recipient.create(defaultRecipientParams);
-    Card originalCard = recipient.getCards().getData().get(0);
-    Map<String, Object> updateParams = new HashMap<String, Object>();
-    updateParams.put("name", "J Bindings Debitholder, Jr.");
-    Card updatedCard = originalCard.update(updateParams);
-    assertEquals(updatedCard.getName(), "J Bindings Debitholder, Jr.");
-  }
-
-  @Test
-  public void testRecipientCardDelete() throws StripeException {
-    Recipient recipient = Recipient.create(defaultRecipientParams);
-    Map<String, Object> creationParams = new HashMap<String, Object>();
-    creationParams.put("card", "tok_visa_debit");
-    recipient.createCard(creationParams);
-
-    Card card = recipient.getCards().getData().get(0);
-    DeletedCard deletedCard = card.delete();
-    Recipient retrievedRecipient = Recipient.retrieve(recipient.getId());
-
-    assertTrue(deletedCard.getDeleted());
-    assertEquals(deletedCard.getId(), card.getId());
-    for (Card retrievedCard : retrievedRecipient.getCards().getData()) {
-      assertFalse("Card was not actually deleted: " + card.getId(),
-          card.getId().equals(retrievedCard.getId()));
-    }
-  }
-
-  @Test
-  public void testRecipientDelete() throws StripeException {
-    Recipient createdRecipient = Recipient.create(defaultRecipientParams);
-    DeletedRecipient deletedRecipient = createdRecipient.delete();
-    Recipient deletedRetrievedRecipient = Recipient.retrieve(createdRecipient.getId());
-    assertTrue(deletedRecipient.getDeleted());
-    assertEquals(deletedRecipient.getId(), createdRecipient.getId());
-    assertTrue(deletedRetrievedRecipient.getDeleted());
-  }
-
-  @Test
-  public void testRecipientMetadata() throws StripeException {
-    testMetadata(Recipient.create(defaultRecipientParams));
+    verifyRequest(
+        APIResource.RequestMethod.POST,
+        String.format("/v1/recipients/%s/cards", resource.getId()),
+        params
+    );
   }
 }
