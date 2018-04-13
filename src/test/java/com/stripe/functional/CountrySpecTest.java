@@ -20,6 +20,7 @@ public class CountrySpecTest extends BaseStripeMockTest {
   public void testRetrieve() throws StripeException {
     CountrySpec resource = CountrySpec.retrieve(RESOURCE_ID);
 
+    assertNotNull(resource);
     verifyRequest(
         APIResource.RequestMethod.GET,
         String.format("/v1/country_specs/%s", RESOURCE_ID)

@@ -1,5 +1,7 @@
 package com.stripe;
 
+import static org.mockito.Mockito.reset;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -270,6 +272,14 @@ public class BaseStripeMockTest {
           Mockito.any(APIResource.RequestType.class),
           Mockito.<RequestOptions>any()
       );
+  }
+
+  /**
+   * Resets the network spy. This is useful when you need to retrieve a resource from stripe-mock
+   * to use as a fixture, but the retrieval request is not part of the test.
+   */
+  public static void resetNetworkSpy() {
+    reset(networkSpy);
   }
 
   /**

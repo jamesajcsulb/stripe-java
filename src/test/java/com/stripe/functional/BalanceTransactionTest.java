@@ -20,6 +20,7 @@ public class BalanceTransactionTest extends BaseStripeMockTest {
   public void testRetrieve() throws StripeException {
     BalanceTransaction resource = BalanceTransaction.retrieve(RESOURCE_ID);
 
+    assertNotNull(resource);
     verifyRequest(
         APIResource.RequestMethod.GET,
         String.format("/v1/balance/history/%s", RESOURCE_ID)

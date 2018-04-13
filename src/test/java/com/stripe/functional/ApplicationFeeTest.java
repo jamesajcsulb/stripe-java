@@ -21,6 +21,7 @@ public class ApplicationFeeTest extends BaseStripeMockTest {
   public void testRetrieve() throws StripeException {
     ApplicationFee resource = ApplicationFee.retrieve(RESOURCE_ID);
 
+    assertNotNull(resource);
     verifyRequest(
         APIResource.RequestMethod.GET,
         String.format("/v1/application_fees/%s", RESOURCE_ID)
