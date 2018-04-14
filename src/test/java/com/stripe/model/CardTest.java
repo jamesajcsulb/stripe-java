@@ -1,26 +1,19 @@
 package com.stripe.model;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-import com.stripe.BaseStripeTest;
+import com.stripe.BaseStripeMockTest;
+import com.stripe.model.Card;
 import com.stripe.net.APIResource;
 
-import java.io.IOException;
-
-import org.junit.Before;
 import org.junit.Test;
 
-public class CardTest extends BaseStripeTest {
-  Card card;
-
-  @Before
-  public void deserialize() throws IOException {
-    String json = resource("card.json");
-    card = APIResource.GSON.fromJson(json, Card.class);
-  }
-
+public class CardTest extends BaseStripeMockTest {
   @Test
-  public void testDeserialize() throws IOException {
-    assertEquals("bypassed", card.getThreeDSecure().getStatus());
+  public void testDeserialize() throws Exception {
+    String data = getFixture("/v1/customers/cus_123/cards/card_123");
+    Card resource = APIResource.GSON.fromJson(data, Card.class);
+    assertNotNull(resource);
+    assertNotNull(resource.getId());
   }
 }
